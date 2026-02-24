@@ -194,13 +194,20 @@ def analyze_room():
         
         # 6. LLM Refinement
         print("Refining recommendations with Gemini...")
-        refined_recs = refine_recommendations(
-            room_type, 
-            [obj['label'] for obj in detected_objects], 
-            rule_recs, 
-            style
-        )
-        print(f"Final Refined Recommendations: {[r['name'] for r in refined_recs]}")
+        try:
+            refined_recs = refine_recommendations(
+                room_type, 
+                [obj['label'] for obj in detected_objects], 
+                rule_recs, 
+                style
+            )
+            print(f"Final Refined Recommendations: {[r['name'] for r in refined_recs]}")
+        except Exception as llm_error:
+            if "429" in str(llm_error) or "Exhausted" in str(llm_error) or "Resource exhausted" in str(llm_error):
+                print(f"Gemini API Quota Exceeded (429). Falling back to rule-based recommendations. Error: {llm_error}")
+            else:
+                print(f"Gemini LLM Refinement failed. Falling back to rule-based. Error: {llm_error}")
+            refined_recs = rule_recs
 
         # Phase 8: Store context
         session_id = f"ctx_{current_user_id}_{len(ai_context_store)}"
