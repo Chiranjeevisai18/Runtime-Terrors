@@ -1,6 +1,5 @@
 import os
 from tavily import TavilyClient
-from models import Product, db
 
 class ProductScraperError(Exception):
     pass
@@ -68,40 +67,17 @@ def search_amazon_products(query: str, max_results: int = 5) -> list[dict]:
 
 def get_or_scrape_products(query: str) -> list[dict]:
     """
-    Synchronous wrapper to handle the DB caching over Tavily searches.
+    Calls Tavily to search Amazon and returns raw results.
+    No DB dependency to avoid Flask app context issues.
     """
     try:
         scraped_data = search_amazon_products(query)
-        print(f"Scraper found {len(scraped_data)} results via Tavily.", flush=True)
-        
-        # Save to DB
-        saved_products = []
-        for item in scraped_data:
-            # Simple deduplication by URL
-            existing = Product.query.filter_by(url=item['url']).first()
-            if existing:
-                # Update price/rating
-                existing.price = item['price']
-                existing.rating = item['rating']
-                saved_products.append(existing.to_dict())
-            else:
-                new_product = Product(
-                    title=item['title'],
-                    vendor=item['vendor'],
-                    url=item['url'],
-                    price=item['price'],
-                    rating=item['rating'],
-                    image_url=item['image_url']
-                )
-                db.session.add(new_product)
-                db.session.commit()
-                saved_products.append(new_product.to_dict())
-                
-        return saved_products
-        
+        print(f"Tavily returned {len(scraped_data)} results for '{query}'.", flush=True)
+        return scraped_data
     except ProductScraperError as e:
         print(f"Scraper error: {e}")
         return []
     except Exception as e:
         print(f"Unexpected error in get_or_scrape_products: {e}")
         return []
+

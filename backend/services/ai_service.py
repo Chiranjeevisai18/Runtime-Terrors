@@ -56,12 +56,13 @@ class AIService:
             print(f"Error loading models in AIService: {e}")
 
     def get_assistant_response(self, prompt):
+        # Always try to get key lazily (pick up from env even if not set at init time)
         if not self.gemini_model:
-            print("Gemini model not initialized. Checking env...")
             api_key = os.getenv("GEMINI_API_KEY")
             if api_key:
                 genai.configure(api_key=api_key)
                 self.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+                print("Gemini model lazily initialized from env.")
             else:
                 return "I'm having trouble connecting to my brain. Please check the API key."
         

@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from PIL import Image
 import io
-import torch
 import numpy as np
 import cv2
+import uuid
+import os
 from sklearn.cluster import KMeans
 from services.ai_service import get_ai_service
+import google.generativeai as genai
 
 ai_bp = Blueprint("ai", __name__, url_prefix="/api/ai")
 
@@ -136,95 +138,79 @@ def refine_recommendations(room_type, detected_objects, rule_recommendations, st
 @ai_bp.route("/analyze-room", methods=["POST"])
 @jwt_required()
 def analyze_room():
+    current_user_id = get_jwt_identity()
     ai_service = get_ai_service()
-    if not ai_service.detr_pipe or not ai_service.blip_pipe:
-        print("Vision models not loaded. Attempting initialization...")
-        ai_service._init_models()
-        if not ai_service.detr_pipe or not ai_service.blip_pipe:
-            print("Failed to initialize vision models.")
-            return jsonify({"message": "AI models are still initializing or failed to load. Please try again in a few seconds."}), 503
 
     if 'image' not in request.files:
         return jsonify({"message": "No image provided"}), 400
 
     file = request.files['image']
     try:
-        # Load image
         image_bytes = file.read()
         print(f"Received image: {len(image_bytes)} bytes")
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        
-        # 1. Image Captioning (BLIP)
-        print("Running BLIP image captioning...")
-        caption_result = ai_service.blip_pipe(image)
-        description = caption_result[0]['generated_text'] if caption_result else "Unknown room"
-        print(f"BLIP Caption: {description}")
-        
-        # 2. Object Detection (DETR)
-        print("Running DETR object detection...")
-        detr_results = ai_service.detr_pipe(image)
-        
-        # Log all detections for debugging
-        for res in detr_results:
-            print(f"Detected: {res['label']} (Score: {res['score']:.3f})")
 
-        # Filter for high confidence objects (>0.6 - lowered from 0.8 for better recall)
-        detected_objects = [
-            {"label": res['label'], "score": round(res['score'], 3)}
-            for res in detr_results if res['score'] > 0.6
-        ]
-        
-        # 3. Infer Room Type
-        room_type = "living_room"
-        if "bedroom" in description.lower() or any(o['label'] == 'bed' for o in detected_objects):
-            room_type = "bedroom"
-        elif "kitchen" in description.lower() or any(o['label'] == 'dining table' for o in detected_objects):
-            room_type = "kitchen"
-        print(f"Inferred Room Type: {room_type}")
-        
-        # 4. Infer Style
-        style = "Modern"
-        if "minimal" in description.lower(): style = "Minimalist"
-        elif "rustic" in description.lower(): style = "Rustic"
+        # --- Use Gemini Vision directly (no heavy local models needed) ---
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            return jsonify({"message": "GEMINI_API_KEY not configured on server."}), 503
 
-        # 5. Generate Recommendations
-        print("Generating rule-based recommendations...")
-        rule_recs = map_objects_to_furniture(detected_objects)
+        genai.configure(api_key=api_key)
+        vision_model = genai.GenerativeModel('gemini-2.0-flash')
+
+        import PIL.Image
+        pil_image = PIL.Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+        vision_prompt = """
+Analyze this room image as an expert interior designer. Respond ONLY with valid JSON:
+{
+  "room_type": "living_room | bedroom | kitchen | office | bathroom",
+  "style": "Modern | Minimalist | Rustic | Traditional | Scandinavian",
+  "description": "One sentence description of the room.",
+  "detected_objects": ["object1", "object2", "object3"]
+}
+Detected objects should be furniture/decor items visible in the image (e.g. sofa, lamp, table, chair, plant).
+"""
+        print("Sending image to Gemini Vision for analysis...")
+        response = vision_model.generate_content([vision_prompt, pil_image])
+        raw_text = response.text
+        print(f"Gemini Vision raw response: {raw_text[:200]}")
+
+        analysis = ai_service.parse_json_response(raw_text)
+        if not analysis:
+            # Gemini didn't return valid JSON - use minimal fallback
+            analysis = {
+                "room_type": "living_room",
+                "style": "Modern",
+                "description": "A comfortable room with modern furnishings.",
+                "detected_objects": ["sofa", "table", "lamp"]
+            }
+
+        room_type = analysis.get("room_type", "living_room")
+        style = analysis.get("style", "Modern")
+        description = analysis.get("description", "")
+        detected_labels = analysis.get("detected_objects", [])
+
+        # Map detected objects to furniture recommendations
+        detected_objects_for_map = [{"label": l} for l in detected_labels]
+        rule_recs = map_objects_to_furniture(detected_objects_for_map)
         print(f"Rule Recommendations: {[r['name'] for r in rule_recs]}")
-        
-        # 6. LLM Refinement
-        print("Refining recommendations with Gemini...")
-        try:
-            refined_recs = refine_recommendations(
-                room_type, 
-                [obj['label'] for obj in detected_objects], 
-                rule_recs, 
-                style
-            )
-            print(f"Final Refined Recommendations: {[r['name'] for r in refined_recs]}")
-        except Exception as llm_error:
-            if "429" in str(llm_error) or "Exhausted" in str(llm_error) or "Resource exhausted" in str(llm_error):
-                print(f"Gemini API Quota Exceeded (429). Falling back to rule-based recommendations. Error: {llm_error}")
-            else:
-                print(f"Gemini LLM Refinement failed. Falling back to rule-based. Error: {llm_error}")
-            refined_recs = rule_recs
 
-        # Phase 8: Store context
-        session_id = f"ctx_{current_user_id}_{len(ai_context_store)}"
-        ai_context_store[session_id] = {
+        # Store context for AI Chat
+        context_id = str(uuid.uuid4())
+        ai_context_store[context_id] = {
             "room_type": room_type,
             "style": style,
             "description": description,
-            "detected_objects": [obj['label'] for obj in detected_objects]
+            "detected_objects": detected_labels
         }
 
         return jsonify({
             "message": "Room analysis complete",
-            "context_id": session_id,
+            "context_id": context_id,
             "room_type": room_type,
             "description": description,
-            "detected_objects": [obj['label'] for obj in detected_objects],
-            "recommended_items": refined_recs
+            "detected_objects": detected_labels,
+            "recommended_items": rule_recs
         }), 200
 
     except Exception as e:
