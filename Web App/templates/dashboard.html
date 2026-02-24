@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Gruha Alankara{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: calc(64px + 2.5rem); padding-bottom: 3rem;">
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header fade-in">
+        <div>
+            <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(124,58,237,0.1);
+                border:1px solid rgba(124,58,237,0.25);border-radius:50px;padding:0.3rem 1rem;
+                font-size:0.78rem;color:var(--accent-light);margin-bottom:0.75rem;letter-spacing:0.05em;">
+                🎨 &nbsp; Design Studio
+            </div>
+            <h1 style="margin-bottom:0.35rem;">My Designs</h1>
+            <p class="text-muted" style="font-size:0.92rem;">Manage and revisit your interior design projects</p>
+        </div>
+        <a href="{{ url_for('designs.upload') }}" class="btn btn-primary">
+            ➕ New Design
+        </a>
+    </div>
+
+    <!-- Stats Row -->
+    {% if designs %}
+    <div class="fade-in fade-in-delay-1" style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:2.5rem;">
+        <div class="glass-card"
+            style="padding:1.2rem 2rem;border-radius:var(--radius-md);flex:1;min-width:140px;text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;font-family:var(--font-display);
+                background:linear-gradient(135deg,var(--accent-light),var(--highlight));
+                -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">
+                {{ designs|length }}
+            </div>
+            <div
+                style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:0.2rem;">
+                Total Designs
+            </div>
+        </div>
+        <div class="glass-card"
+            style="padding:1.2rem 2rem;border-radius:var(--radius-md);flex:1;min-width:140px;text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;font-family:var(--font-display);
+                background:linear-gradient(135deg,var(--gold),var(--accent-light));
+                -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">
+                {{ designs|map(attribute='room_type')|unique|list|length }}
+            </div>
+            <div
+                style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:0.2rem;">
+                Room Types
+            </div>
+        </div>
+        <div class="glass-card"
+            style="padding:1.2rem 2rem;border-radius:var(--radius-md);flex:1;min-width:140px;text-align:center;">
+            <div style="font-size:1.8rem;font-weight:800;font-family:var(--font-display);
+                background:linear-gradient(135deg,var(--highlight),var(--success));
+                -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">
+                {{ designs|map(attribute='style')|unique|list|length }}
+            </div>
+            <div
+                style="font-size:0.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:0.2rem;">
+                Styles Used
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Designs Grid -->
+    <div class="designs-grid">
+        {% if designs %}
+        {% for design in designs %}
+        <div class="glass-card design-card fade-in fade-in-delay-{{ (loop.index % 4) + 1 }}">
+            <!-- Thumbnail with hover overlay -->
+            <div class="design-image-wrapper">
+                <img src="{{ url_for('uploaded_file', filename=design.front_image) }}"
+                    alt="Room design – {{ design.room_type }}" class="design-image" loading="lazy">
+                <div class="design-image-overlay">
+                    <a href="{{ url_for('designs.studio', design_id=design.id) }}" class="btn btn-primary btn-sm">🏗️
+                        Open Studio</a>
+                </div>
+            </div>
+
+            <!-- Design Info -->
+            <div class="design-info">
+                <div class="design-meta">
+                    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                        <span class="room-badge">{{ design.room_type | replace('_', ' ') }}</span>
+                        <span class="style-badge">{{ design.style }}</span>
+                    </div>
+                </div>
+                <p class="design-date" style="margin-top:0.5rem;">
+                    📅 {{ design.created_at.strftime('%b %d, %Y') }}
+                </p>
+                <div class="design-actions">
+                    <form method="POST" action="{{ url_for('designs.delete_design', design_id=design.id) }}"
+                        onsubmit="return confirm('Delete this design? This cannot be undone.');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger btn-sm" title="Delete">🗑️ Delete Design</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state fade-in">
+            <span class="empty-icon">🏠</span>
+            <h3>No Designs Yet</h3>
+            <p>Upload a room photo to start designing with AI — it only takes a moment!</p>
+            <a href="{{ url_for('designs.upload') }}" class="btn btn-primary btn-lg">
+                📸 Upload Your First Room
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

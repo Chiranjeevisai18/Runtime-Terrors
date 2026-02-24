@@ -1,0 +1,19 @@
+L204: {% block extra_scripts %}
+L205: <!-- Studio data injected directly into JS to avoid HTML-encoding issues -->
+L206: <script>
+L207:     // Set each field individually so one bad tojson doesn't break everything
+L208:     window.STUDIO_DATA = {};
+L209:     try { window.STUDIO_DATA.designId = {{ design.id }}; } catch(e) { console.error('designId fail', e); window.STUDIO_DATA.designId = 0; }
+L210:     try { window.STUDIO_DATA.faceUrls = {{ face_urls | tojson }}; } catch(e) { console.error('faceUrls fail', e); window.STUDIO_DATA.faceUrls = {}; }
+L211:     try { window.STUDIO_DATA.roomType = {{ design.room_type | tojson }}; } catch(e) { console.error('roomType fail', e); window.STUDIO_DATA.roomType = 'living_room'; }
+L212:     try { window.STUDIO_DATA.style = {{ design.style | tojson }}; } catch(e) { console.error('style fail', e); window.STUDIO_DATA.style = 'modern'; }
+L213:     try { window.STUDIO_DATA.aiOutput = {{ ai_output | tojson }}; } catch(e) { console.error('aiOutput fail', e); window.STUDIO_DATA.aiOutput = {}; }
+L214:     try { window.STUDIO_DATA.placements = {{ placements | tojson }}; } catch(e) { console.error('placements fail', e); window.STUDIO_DATA.placements = []; }
+L215:     try { window.STUDIO_DATA.csrfToken = {{ csrf_token() | tojson }}; } catch(e) { console.error('csrfToken fail', e); window.STUDIO_DATA.csrfToken = ''; }
+L216:     console.log('[Studio] STUDIO_DATA keys:', JSON.stringify(Object.keys(window.STUDIO_DATA)));
+L217:     console.log('[Studio] faceUrls keys:', JSON.stringify(Object.keys(window.STUDIO_DATA.faceUrls || {})));
+L218:     console.log('[Studio] faceUrls:', JSON.stringify(window.STUDIO_DATA.faceUrls));
+L219: </script>
+L220: <script type="module" src="{{ url_for('static', filename='js/studio.js') }}"></script>
+L221: <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+L222: {% endblock %}

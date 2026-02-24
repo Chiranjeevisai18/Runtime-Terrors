@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Gruha Alankara – AI-Powered Interior Design Studio. Upload room photos, get AI recommendations, and design in 3D.">
+    <title>{% block title %}Gruha Alankara{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- ============ Navigation Bar ============ -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="{{ url_for('home') }}" class="navbar-brand">
+                <span class="brand-icon">🏠</span>
+                <span>Gruha <span class="accent">Alankara</span></span>
+            </a>
+
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+
+            <ul class="navbar-links" id="navLinks">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                {% if logged_in %}
+                <li><a href="{{ url_for('designs.dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('designs.upload') }}">Upload</a></li>
+                <li>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm">
+                        Logout
+                    </a>
+                </li>
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                <li><a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ============ Flash Messages ============ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages" id="flashMessages">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ============ Error Display ============ -->
+    {% if error_message %}
+    <div class="main-content">
+        <div class="container text-center" style="padding-top: 100px;">
+            <h1>⚠️</h1>
+            <h2 class="mt-1">{{ error_message }}</h2>
+            <a href="{{ url_for('home') }}" class="btn btn-primary mt-2">Go Home</a>
+        </div>
+    </div>
+    {% else %}
+    <!-- ============ Main Content ============ -->
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    <!-- ============ Footer ============ -->
+    {% block footer %}
+    <footer class="footer">
+        <p>&copy; 2026 Gruha Alankara – AI-Powered Interior Design Studio</p>
+    </footer>
+    {% endblock %}
+
+    <!-- ============ Base Scripts ============ -->
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('open');
+            });
+        }
+
+        // Auto-dismiss flash messages
+        setTimeout(() => {
+            const flashMessages = document.getElementById('flashMessages');
+            if (flashMessages) {
+                flashMessages.style.transition = 'opacity 0.5s';
+                flashMessages.style.opacity = '0';
+                setTimeout(() => flashMessages.remove(), 500);
+            }
+        }, 5000);
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>
