@@ -1,0 +1,38 @@
+# Built artifacts
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# App build
+/app/build
+
+# Kotlin
+*.class
+
+# Android
+*.apk
+*.ap_
+*.dex
+
+# Python and Backend
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+instance/
+gruha_alankara.db
+
+# Test Outputs & Logs
+*.txt
+*.log
+*.png
+amazon_*.png

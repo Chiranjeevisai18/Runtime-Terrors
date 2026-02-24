@@ -1,0 +1,21 @@
+E:\GruhaBuddy\backend\venv\Lib\site-packages\langchain_core\_api\deprecation.py:27: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.fields import FieldInfo as FieldInfoV1
+
+--- Testing Product Scraper (Amazon) ---
+Scraping Amazon for 'modern beige sofa'...
+Scraper found 0 results.
+FAILURE: Scraper returned no results.
+
+--- Testing Booking Agent (Gemini + Playwright Tools) ---
+Initiating booking for: https://www.amazon.com/dp/B08P2H8S1C
+AGENT_LOOP: Turn 1
+AGENT_LOOP: Executing buy...
+AGENT_TOOL: buy(https://www.amazon.com/dp/B08P2H8S1C)
+AGENT_LOOP: Turn 2
+AGENT_FINAL: {"status": "FALLBACK", "reason": "SECURE_HANDOFF_REQUIRED"}
+Agent Result:
+{
+  "status": "FALLBACK",
+  "reason": "SECURE_HANDOFF_REQUIRED"
+}
+SUCCESS: Agent returned valid status: FALLBACK

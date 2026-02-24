@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Gruha Alankara</string>
+
+    <!-- Auth -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Sign in to continue</string>
+    <string name="register_title">Create Account</string>
+    <string name="register_subtitle">Join Gruha Alankara</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="name_label">Full Name</string>
+    <string name="login_button">Sign In</string>
+    <string name="register_button">Create Account</string>
+    <string name="no_account">Don\'t have an account?</string>
+    <string name="have_account">Already have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+
+    <!-- AR -->
+    <string name="ar_scanning">Point your device at the floor to detect surfaces</string>
+    <string name="ar_detected">Surface detected! Tap to place furniture</string>
+    <string name="ar_tracking_lost">Tracking lost. Move device slowly</string>
+    <string name="ar_not_supported">ARCore is not supported on this device</string>
+    <string name="ar_install_required">Please install Google Play Services for AR</string>
+    <string name="camera_permission_title">Camera Permission Required</string>
+    <string name="camera_permission_rationale">Gruha Alankara needs camera access to scan your room and place virtual furniture in AR.</string>
+
+    <!-- Furniture -->
+    <string name="furniture_sofa">Sofa</string>
+    <string name="furniture_table">Table</string>
+    <string name="furniture_chair">Chair</string>
+    <string name="furniture_lamp">Lamp</string>
+    <string name="furniture_bookshelf">Bookshelf</string>
+
+    <!-- Actions -->
+    <string name="action_remove">Remove</string>
+    <string name="action_reset">Reset Scene</string>
+    <string name="action_logout">Logout</string>
+</resources>

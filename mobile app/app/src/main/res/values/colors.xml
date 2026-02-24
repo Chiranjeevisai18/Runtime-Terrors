@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="deep_slate">#FF0F1419</color>
+    <color name="surface_dark">#FF1A1F2E</color>
+    <color name="card_dark">#FF232837</color>
+    <color name="violet_primary">#FF7C3AED</color>
+    <color name="cyan_secondary">#FF06B6D4</color>
+    <color name="text_primary">#FFE2E8F0</color>
+    <color name="text_secondary">#FFCBD5E1</color>
+    <color name="error_red">#FFEF4444</color>
+</resources>
