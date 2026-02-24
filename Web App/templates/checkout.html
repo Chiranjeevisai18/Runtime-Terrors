@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Checkout - Gruha Alankara{% endblock %}
+
+{% block content %}
+<div class="container fade-in" style="max-width:600px;">
+    <h1 class="text-center mb-1">Final <span class="gradient-text">Step</span></h1>
+    <p class="text-center text-muted mb-2">Enter your shipping details to complete the order.</p>
+
+    <div class="glass-card">
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="address">Shipping Address</label>
+                <textarea name="address" id="address" class="form-control" rows="4"
+                    placeholder="Full address with city and pincode" required></textarea>
+            </div>
+            <div class="form-group mt-1">
+                <label>Payment Method</label>
+                <div class="glass-card"
+                    style="padding:1rem; background:rgba(255,255,255,0.05); border-color:var(--accent);">
+                    <input type="radio" checked> 💳 Credit / Debit Card (Simulated)
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-full mt-2">Place Order</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

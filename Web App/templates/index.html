@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Gruha Alankara – AI Interior Design Studio{% endblock %}
+
+{% block content %}
+<!-- ============ Hero ============ -->
+<section class="hero">
+    <!-- Animated floating orbs -->
+    <div class="hero-orb hero-orb--1"></div>
+    <div class="hero-orb hero-orb--2"></div>
+    <div class="hero-orb hero-orb--3"></div>
+
+    <div class="hero-content fade-in">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            AI-Powered Interior Design
+        </div>
+        <h1>
+            Transform Your Space<br>
+            Into <span class="gradient-text-hero">Dream Interiors</span>
+        </h1>
+        <p>
+            Upload room photos, get AI-powered analysis & furniture recommendations,
+            and bring your vision to life in an interactive 3D studio.
+        </p>
+        <div class="hero-buttons">
+            {% if logged_in %}
+            <a href="{{ url_for('designs.upload') }}" class="btn btn-glow btn-lg">
+                🚀 Get Started
+            </a>
+            <a href="{{ url_for('designs.dashboard') }}" class="btn btn-outline btn-lg">
+                My Designs
+            </a>
+            {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-glow btn-lg">
+                🚀 Get Started Free
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg">
+                Sign In
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ============ Stats Bar ============ -->
+<section class="landing-section landing-section--compact">
+    <div class="container">
+        <div class="stats-strip fade-in fade-in-delay-2">
+            <div class="stat-chip">
+                <span class="stat-chip-icon">🎨</span>
+                <div>
+                    <span class="stat-chip-number">5+</span>
+                    <span class="stat-chip-label">Design Styles</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-chip">
+                <span class="stat-chip-icon">🏗️</span>
+                <div>
+                    <span class="stat-chip-number">3D</span>
+                    <span class="stat-chip-label">Interactive Studio</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-chip">
+                <span class="stat-chip-icon">🤖</span>
+                <div>
+                    <span class="stat-chip-number">AI</span>
+                    <span class="stat-chip-label">Gemini Powered</span>
+                </div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-chip">
+                <span class="stat-chip-icon">🎙️</span>
+                <div>
+                    <span class="stat-chip-number">Voice</span>
+                    <span class="stat-chip-label">Design Assistant</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ How It Works ============ -->
+<section class="landing-section" id="features">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">Features</span>
+            <h2>How <span class="gradient-text">Gruha Alankara</span> Works</h2>
+            <p class="section-subtitle">
+                From room photo to dream interior — in four simple steps.
+            </p>
+        </div>
+        <div class="features-cards-grid">
+            <div class="feature-card-v2 fade-in fade-in-delay-1">
+                <div class="feature-step">01</div>
+                <span class="feature-icon-v2">📸</span>
+                <h3>Upload Room Photo</h3>
+                <p>Take a photo of your room or upload an existing image. We accept JPG and PNG in single or 6-face
+                    panoramic view.</p>
+            </div>
+            <div class="feature-card-v2 fade-in fade-in-delay-2">
+                <div class="feature-step">02</div>
+                <span class="feature-icon-v2">🤖</span>
+                <h3>AI Room Analysis</h3>
+                <p>Advanced AI models detect objects, analyze spatial layout, and recommend furniture tailored to your
+                    style preference.</p>
+            </div>
+            <div class="feature-card-v2 fade-in fade-in-delay-3">
+                <div class="feature-step">03</div>
+                <span class="feature-icon-v2">🎨</span>
+                <h3>Choose Your Style</h3>
+                <p>Select from Modern, Minimalist, Traditional, Industrial, or Scandinavian themes to personalize
+                    recommendations.</p>
+            </div>
+            <div class="feature-card-v2 fade-in fade-in-delay-4">
+                <div class="feature-step">04</div>
+                <span class="feature-icon-v2">🏗️</span>
+                <h3>3D Interactive Studio</h3>
+                <p>Drag, rotate, and scale furniture in a live 3D scene with your room as the backdrop. Save and revisit
+                    your designs.</p>
+            </div>
+        </div>
+
+        <!-- Extra capabilities row -->
+        <div class="capabilities-row fade-in">
+            <div class="capability-chip">
+                <span>🎙️</span> Gemini Voice Assistant
+            </div>
+            <div class="capability-chip">
+                <span>💾</span> Save & Manage Designs
+            </div>
+            <div class="capability-chip">
+                <span>🛒</span> Shop on Amazon
+            </div>
+            <div class="capability-chip">
+                <span>🎯</span> Smart Color Palettes
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Design Styles ============ -->
+<section class="landing-section landing-section--alt" id="styles">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">Styles</span>
+            <h2>Design <span class="gradient-text">Styles</span></h2>
+            <p class="section-subtitle">
+                Pick the aesthetic that speaks to your soul — we'll tailor AI recommendations to match.
+            </p>
+        </div>
+        <div class="styles-grid">
+            {% set styles = [
+            ('🏢','Modern','Clean lines & neutral palettes',['#1a1a2e','#16213e','#0f3460','#e94560']),
+            ('🪷','Minimalist','Less is more — simple forms',['#ffffff','#f0f0f0','#d4d4d4','#525252']),
+            ('🏛️','Traditional','Classic elegance & warm colors',['#5c3d2e','#8b6f47','#d4a574','#f5e6d3']),
+            ('🏭','Industrial','Raw materials & urban vibes',['#2d2d2d','#4a4a4a','#a0522d','#cd853f']),
+            ('🍃','Scandinavian','Cozy warmth & light woods',['#faf9f6','#b7c4cf','#967e76','#d7c0ae'])
+            ] %}
+            {% for icon, name, desc, colors in styles %}
+            <div class="style-card fade-in fade-in-delay-{{ loop.index % 4 + 1 }}">
+                <div class="style-card-icon">{{ icon }}</div>
+                <h4>{{ name }}</h4>
+                <p>{{ desc }}</p>
+                <div class="style-palette">
+                    {% for clr in colors %}
+                    <span class="palette-dot" style="background:{{ clr }};"></span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- ============ Showcase / Why Us ============ -->
+<section class="landing-section" id="why">
+    <div class="container">
+        <div class="section-header fade-in">
+            <span class="section-tag">Why Us</span>
+            <h2>Why Choose <span class="gradient-text">Gruha Alankara</span>?</h2>
+        </div>
+        <div class="why-grid fade-in">
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <h4>Lightning Fast</h4>
+                <p>Get AI analysis results and furniture suggestions in seconds — no waiting around.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🔒</div>
+                <h4>Private & Secure</h4>
+                <p>Your room photos and designs are safely stored and never shared with third parties.</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🌐</div>
+                <h4>Works Everywhere</h4>
+                <p>Fully responsive — design from your desktop, tablet, or phone anytime, anywhere.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ CTA Banner ============ -->
+{% if not logged_in %}
+<section class="landing-section landing-section--compact">
+    <div class="container">
+        <div class="cta-banner fade-in">
+            <div class="cta-glow"></div>
+            <h2>Ready to Transform Your Space?</h2>
+            <p>Join Gruha Alankara and experience AI-driven interior design like never before.</p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-glow btn-lg">
+                🚀 Start for Free
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ============ Footer ============ -->
+<footer class="landing-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <span class="brand-icon">🏠</span>
+                <span class="footer-brand-name">Gruha <span class="accent">Alankara</span></span>
+                <p class="footer-tagline">AI-Powered Interior Design Studio</p>
+            </div>
+            <div class="footer-links-group">
+                <h5>Platform</h5>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    {% if logged_in %}
+                    <li><a href="{{ url_for('designs.upload') }}">Upload</a></li>
+                    <li><a href="{{ url_for('designs.dashboard') }}">Dashboard</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h5>Features</h5>
+                <ul>
+                    <li><a href="#features">AI Analysis</a></li>
+                    <li><a href="#styles">Design Styles</a></li>
+                    <li><a href="#features">3D Studio</a></li>
+                    <li><a href="#features">Voice Assistant</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h5>Design Styles</h5>
+                <ul>
+                    <li><a href="#styles">Modern</a></li>
+                    <li><a href="#styles">Minimalist</a></li>
+                    <li><a href="#styles">Traditional</a></li>
+                    <li><a href="#styles">Scandinavian</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Gruha Alankara – AI-Powered Interior Design Studio. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+{% endblock %}
